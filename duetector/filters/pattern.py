@@ -7,6 +7,23 @@ from duetector.filters import Filter
 
 
 class PatternFilter(Filter):
+    """
+    A Filter support regex pattern to filter data
+
+    Usage:
+        There are following config build-in:
+            - re_exclude_fname: Regex pattern to filter out `fname` field
+            - re_exclude_comm: Regex pattern to filter out `comm` field
+            - exclude_pid: Filter out `pid` field
+            - exclude_uid: Filter out `uid` field
+            - exclude_gid: Filter out `gid` field
+
+        Customize exclude is also supported
+        e.g.:
+            - re_exclude_custom: Regex pattern to filter out `custom`
+            - exclude_custom: Filter out `custom` field
+    """
+
     default_config = {
         **Filter.default_config,
         "enable_customize_exclude": True,
@@ -35,14 +52,14 @@ class PatternFilter(Filter):
         return bool(self.config.enable_customize_exclude)
 
     def customize_exclude(self, data: NamedTuple) -> bool:
-        for k in self.config.config_dict:
+        for k in self.config._config_dict:
             if k.startswith("exclude_"):
                 field = k.replace("exclude_", "")
-                if getattr(data, field, None) in self.config.config_dict[k]:
+                if getattr(data, field, None) in self.config._config_dict[k]:
                     return True
             if k.startswith("re_exclude_"):
                 field = k.replace("re_exclude_", "")
-                if self.re_exclude(getattr(data, field, None), self.config.config_dict[k]):
+                if self.re_exclude(getattr(data, field, None), self.config._config_dict[k]):
                     return True
         return False
 
